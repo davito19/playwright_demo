@@ -1,22 +1,32 @@
 pipeline {
-  agent { 
-    docker { 
-      image 'mcr.microsoft.com/playwright:v1.44.1-jammy'
-    } 
-  }
-  stages {
-    stage('help') {
-      steps {
-        sh 'npx playwright test --help'
-      }
+    agent any
+    tools {
+        nodejs 'Node 22.3' 
     }
-    stage('test') {
-      steps {
-        sh '''
-          npx ci
-          npx playwright test
-        '''
-      }
+    environment {
+        PLAYWRIGHT_BROWSERS_PATH = './node_modules/.cache/ms-playwright'
     }
-  }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh 'npx playwright test'
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'test-results/**'
+            junit 'test-results/*.xml'
+        }
+    }
 }
