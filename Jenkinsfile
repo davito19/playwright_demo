@@ -14,7 +14,10 @@ pipeline {
         }
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh '''
+                npm install
+                npx playwright install  
+                '''
             }
         }
         stage('Run Tests') {
